@@ -1,0 +1,8 @@
+version: '3'
+services:
+  mqtt:
+    image: "eclipse-mosquitto"
+    user: "1001"
+    container_name: "mqtt_local"
+    ports:
+      - "1883:1883"
