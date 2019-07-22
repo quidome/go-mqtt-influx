@@ -1,4 +1,4 @@
-// package mqttclient is used as
+// pushes a pre-defined message to test queue on mqtt
 package main
 
 import (
@@ -11,6 +11,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+// example message to send
 const message = `
 {
 	"identification" : "XXXXXXXXXXXXXXXXXXXX",
@@ -40,6 +41,7 @@ const message = `
   }
 `
 
+// connect to mqtt server
 func connect(clientID string, uri *url.URL) mqtt.Client {
 	opts := createClientOptions(clientID, uri)
 	client := mqtt.NewClient(opts)
