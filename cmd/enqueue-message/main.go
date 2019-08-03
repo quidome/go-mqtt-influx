@@ -77,6 +77,7 @@ func main() {
 	fmt.Printf("publishing message to %s/%s\n", uri.Host, string(topic))
 
 	client := connect("pub", uri)
-	token := client.Publish(topic, 0, false, message)
+	token := client.Publish(topic, 0, true, message)
 	token.Wait()
+	client.Disconnect(1000)
 }
