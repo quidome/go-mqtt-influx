@@ -15,9 +15,14 @@ GO_BUILD = CGO_ENABLED=0 go build -a -ldflags "$(LDFLAGS)"
 # set default action for make
 .DEFAULT_GOAL := help
 
+## Enqueue message into dev environment
+dev.send:
+	go run cmd/enqueue-message/main.go
+
 ## Start development environment and run the server on port 8080
 run: dev.start
- 	CLOUDMQTT_URL=mqtt://localhost:1883/ go run cmd/enqueue-message/main.go 
+	echo starting
+	CLOUDMQTT_URL='mqtt://localhost:1883/' go run cmd/mqtt-influx/main.go 
 
 ## Start the development environment
 dev.start:
@@ -47,13 +52,6 @@ clean:
 	rm -f ./r2d2-*
 	rm -rf ./.build
 
-## Start a linux shell
-linux.bash:
-	$(MAKE) _dexec CMD="bash"
-
-## Start the redis cli from the running container
-redis-cli:
-	docker exec -it chatbot_redis_1 redis-cli
 
 dir = ""
 i = ""

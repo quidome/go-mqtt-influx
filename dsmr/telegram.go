@@ -1,7 +1,8 @@
-package telegram
+// Package dsmr handles dsmr specific things
+package dsmr
 
-// P1Message can store contents of a p1 telegram
-type P1Message struct {
+// Telegram can store contents of a p1 telegram
+type Telegram struct {
 	Identification          string  `json:"identification"`
 	P1Version               string  `json:"p1_version"`
 	Timestamp               string  `json:"timestamp"`
