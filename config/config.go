@@ -6,7 +6,6 @@ import (
 
 var (
 	mngr = viper.New()
-	//log  = logger.New()
 )
 
 // Settings contains application settings

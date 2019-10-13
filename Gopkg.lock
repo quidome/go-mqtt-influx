@@ -60,18 +60,6 @@
   version = "v1.7.8"
 
 [[projects]]
-  digest = "1:7868838a192c5568be2a349a02c695aeaa379e7f1912042b6ccd7b57bca70373"
-  name = "github.com/influxdb/influxdb"
-  packages = [
-    "client",
-    "models",
-    "pkg/escape",
-  ]
-  pruneopts = "UT"
-  revision = "f55169eaca706f78e2d66edb0b8e62861712a747"
-  version = "v0.10.3"
-
-[[projects]]
   digest = "1:5a0ef768465592efca0412f7e838cdc0826712f8447e70e6ccc52eb441e9ab13"
   name = "github.com/magiconair/properties"
   packages = ["."]
@@ -188,7 +176,6 @@
     "github.com/eclipse/paho.mqtt.golang",
     "github.com/fatih/structs",
     "github.com/influxdata/influxdb/client/v2",
-    "github.com/influxdb/influxdb/client",
     "github.com/spf13/viper",
   ]
   solver-name = "gps-cdcl"
