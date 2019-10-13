@@ -2,10 +2,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/url"
-	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -65,18 +65,19 @@ func createClientOptions(clientID string, uri *url.URL) *mqtt.ClientOptions {
 }
 
 func main() {
-	uri, err := url.Parse(os.Getenv("CLOUDMQTT_URL"))
+	server := flag.String("server", "tcp://127.0.0.1:1883", "The full url of the MQTT server to connect to ex: tcp://127.0.0.1:1883")
+	topic := flag.String("topic", "test", "Topic to subscribe to")
+	flag.Parse()
+
+	uri, err := url.Parse(*server)
 	if err != nil {
 		log.Fatal(err)
 	}
-	topic := uri.Path[1:len(uri.Path)]
-	if topic == "" {
-		topic = "test"
-	}
 
-	fmt.Printf("publishing message to %s/%s\n", uri.Host, string(topic))
+	fmt.Printf("publishing message to %s/%s\n", uri.Host, string(*topic))
 
 	client := connect("pub", uri)
-	token := client.Publish(topic, 0, false, message)
+	token := client.Publish(*topic, 0, false, message)
 	token.Wait()
+	client.Disconnect(1000)
 }

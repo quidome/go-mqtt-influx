@@ -1,8 +1,45 @@
-version: '3'
+networks:
+  metrics: {}
 services:
-  mqtt:
-    image: "eclipse-mosquitto"
-    user: "1001"
-    container_name: "mqtt_local"
+  grafana:
+    container_name: grafana_local
+    depends_on:
+      - influxdb
+    environment:
+      TZ: Europe/Amsterdam
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    image: grafana/grafana
+    networks:
+      metrics: null
     ports:
-      - "1883:1883"
+      - 3000:3000/tcp
+    volumes:
+      - grafana-storage:/var/lib/grafana
+  influxdb:
+    container_name: influxdb_local
+    environment:
+      INFLUXDB_DB: testdb
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: secrets
+      INFLUXDB_USER: testuser
+      INFLUXDB_USER_PASSWORD: supersecret
+      TZ: Europe/Amsterdam
+    image: influxdb
+    networks:
+      metrics: null
+    ports:
+      - 8086:8086/tcp
+    volumes:
+      - influxdb-storage:/var/lib/influxdb:rw
+  mqtt:
+    container_name: mqtt_local
+    environment:
+      TZ: Europe/Amsterdam
+    image: eclipse-mosquitto
+    ports:
+      - 1883:1883/tcp
+    user: '1001'
+version: '3.0'
+volumes:
+  grafana-storage: {}
+  influxdb-storage: {}

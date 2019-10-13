@@ -32,3 +32,15 @@
 [[constraint]]
   name = "github.com/eclipse/paho.mqtt.golang"
   version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/influxdata/influxdb"
+  version = "1.7.7"
+
+[[constraint]]
+  name = "github.com/influxdb/influxdb"
+  version = "0.10.3"
