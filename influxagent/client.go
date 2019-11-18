@@ -1,13 +1,16 @@
 package influxagent
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/fatih/structs"
 	"github.com/influxdata/influxdb/client/v2"
 	"github.com/quidome/mqtt-influx/dsmr"
 )
+
+var log = logrus.WithField("pkg", "influxagent")
 
 // StoreData takes a bunch of parameters to construct and send a message to influxdb
 func StoreData(influxURL string, influxDatabase string, influxUsername string, influxPassword string, influxData dsmr.Telegram) {
@@ -18,9 +21,8 @@ func StoreData(influxURL string, influxDatabase string, influxUsername string, i
 		Password: influxPassword,
 	})
 	if err != nil {
-		fmt.Println("Error creating InfluxDB Client: ", err.Error())
-	} else {
-		fmt.Printf("Sending metrics to %s/%s as %s\n", influxURL, influxDatabase, influxUsername)
+		log.Errorf("Error creating InfluxDB Client: %s", err.Error())
+		return
 	}
 	defer c.Close()
 
@@ -31,12 +33,16 @@ func StoreData(influxURL string, influxDatabase string, influxUsername string, i
 	})
 
 	// Create a point and add to batch
-	point_tags := map[string]string{"location": "ground"}
+	pointTags := map[string]string{"location": "ground"}
 
-	pt, err := client.NewPoint("p1_meter", point_tags, structs.Map(influxData), time.Now())
+	pt, err := client.NewPoint("p1_meter", pointTags, structs.Map(influxData), time.Now())
 	if err != nil {
-		fmt.Println("Error: ", err.Error())
+		log.Errorf("Error creating new point: %s", err.Error())
+		return
 	}
 	bp.AddPoint(pt)
-	c.Write(bp)
+	if err = c.Write(bp); err != nil {
+		log.Errorf("Error writing data %s", err)
+		return
+	}
 }
