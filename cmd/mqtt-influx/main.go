@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/quidome/mqtt-influx/config"
 	"github.com/quidome/mqtt-influx/dsmr"
 	"github.com/quidome/mqtt-influx/influxagent"
 	"github.com/quidome/mqtt-influx/mqttagent"
+	"github.com/sirupsen/logrus"
 )
 
 const banner = ` _______  _______ __________________       _________ _        _______  _
@@ -23,7 +23,12 @@ const banner = ` _______  _______ __________________       _________ _        __
 in to the flux
 `
 
+var log = logrus.WithField("pkg", "main")
+
 func main() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true})
+
 	fmt.Print(banner)
 
 	// load settings (from env vars)
@@ -54,7 +59,7 @@ func main() {
 		res := dsmr.Telegram{}
 		err := json.Unmarshal(message, &res)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 		// send data to influx

@@ -3,17 +3,20 @@ package mqttagent
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/sirupsen/logrus"
 )
 
+var log = logrus.WithField("pkg", "mqttagent")
 
-// Connect initiates the client connection
-func connect(clientID string, uri *url.URL) mqtt.Client {
-	opts := createClientOptions(clientID, uri)
+// Listen initiates the client connection
+func Listen(uri *url.URL, topic string, messageChannel chan []byte) {
+	opts := createClientOptions("mqttinflux", uri, func(client mqtt.Client) {
+		createSubscriptions(client, messageChannel, topic)
+	})
 	client := mqtt.NewClient(opts)
 	token := client.Connect()
 	for !token.WaitTimeout(3 * time.Second) {
@@ -21,24 +24,24 @@ func connect(clientID string, uri *url.URL) mqtt.Client {
 	if err := token.Error(); err != nil {
 		log.Fatal(err)
 	}
-	return client
 }
 
-func createClientOptions(clientID string, uri *url.URL) *mqtt.ClientOptions {
+func createSubscriptions(client mqtt.Client, messageChannel chan []byte, topic string) {
+	log.Info("creating subscriptions")
+	client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
+		messageChannel <- msg.Payload()
+	})
+}
+
+func createClientOptions(clientID string, uri *url.URL, connectHandler func(client mqtt.Client)) *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s", uri.Host))
 	opts.SetUsername(uri.User.Username())
 	password, _ := uri.User.Password()
 	opts.SetPassword(password)
 	opts.SetClientID(clientID)
-	opts.AutoReconnect = true
+	opts.SetAutoReconnect(true)
+	opts.SetMaxReconnectInterval(time.Second)
+	opts.SetOnConnectHandler(connectHandler)
 	return opts
-}
-
-// Listen starts listening to a topic, sending payload back to given channel
-func Listen(uri *url.URL, topic string, messageChannel chan []byte) {
-	client := connect("sub", uri)
-	client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
-		messageChannel <- msg.Payload()
-	})
 }
